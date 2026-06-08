@@ -2,17 +2,26 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import API from '../services/api';
 import { Zap } from 'lucide-react';
+import { validateLogin } from '../utils/validation';
 
 function Login({ onLogin }) {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
+  const [formErrors, setFormErrors] = useState({});
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
+
+  const clearError = (field) => {
+    if (formErrors[field]) setFormErrors(prev => { const u = { ...prev }; delete u[field]; return u; });
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
+    setFormErrors({});
+    const { valid, errors } = validateLogin({ username, password });
+    if (!valid) { setFormErrors(errors); return; }
     setLoading(true);
     try {
       const res = await API.post('/auth/login', { username, password });
@@ -41,24 +50,26 @@ function Login({ onLogin }) {
 
         {error && <div className="p-3 rounded-lg mb-4 text-sm font-medium bg-gray-100 text-gray-800 border border-gray-300">{error}</div>}
 
-        <form onSubmit={handleSubmit} className="flex flex-col gap-4">
+        <form onSubmit={handleSubmit} className="flex flex-col gap-4" noValidate>
           <div className="flex flex-col gap-1.5">
             <label htmlFor="username" className="text-xs font-semibold text-gray-500 uppercase tracking-[0.3px]">Username</label>
             <input
               id="username" type="text" value={username}
-              onChange={(e) => setUsername(e.target.value)}
+              onChange={(e) => { setUsername(e.target.value); clearError('username'); }}
               placeholder="Enter your username" required autoFocus
-              className="w-full p-3.5 text-base border border-gray-300 rounded-md transition-colors focus:outline-none focus:border-black focus:shadow-[0_0_0_3px_rgba(0,0,0,0.08)] bg-white text-neutral-900 placeholder:text-gray-400"
+              className={`w-full p-3.5 text-base border rounded-md transition-colors focus:outline-none focus:border-black focus:shadow-[0_0_0_3px_rgba(0,0,0,0.08)] bg-white text-neutral-900 placeholder:text-gray-400 ${formErrors.username ? '!border-red-600 !shadow-[0_0_0_3px_rgba(211,47,47,0.08)]' : 'border-gray-300'}`}
             />
+            {formErrors.username && <span className="text-xs text-red-600 font-medium">{formErrors.username}</span>}
           </div>
           <div className="flex flex-col gap-1.5">
             <label htmlFor="password" className="text-xs font-semibold text-gray-500 uppercase tracking-[0.3px]">Password</label>
             <input
               id="password" type="password" value={password}
-              onChange={(e) => setPassword(e.target.value)}
+              onChange={(e) => { setPassword(e.target.value); clearError('password'); }}
               placeholder="Enter your password" required
-              className="w-full p-3.5 text-base border border-gray-300 rounded-md transition-colors focus:outline-none focus:border-black focus:shadow-[0_0_0_3px_rgba(0,0,0,0.08)] bg-white text-neutral-900 placeholder:text-gray-400"
+              className={`w-full p-3.5 text-base border rounded-md transition-colors focus:outline-none focus:border-black focus:shadow-[0_0_0_3px_rgba(0,0,0,0.08)] bg-white text-neutral-900 placeholder:text-gray-400 ${formErrors.password ? '!border-red-600 !shadow-[0_0_0_3px_rgba(211,47,47,0.08)]' : 'border-gray-300'}`}
             />
+            {formErrors.password && <span className="text-xs text-red-600 font-medium">{formErrors.password}</span>}
           </div>
           <button type="submit" disabled={loading}
             className="w-full inline-flex items-center justify-center gap-1.5 px-5 py-3 rounded-md text-sm font-medium cursor-pointer transition-all min-h-[44px] bg-black text-white hover:bg-gray-800 hover:-translate-y-0.5 hover:shadow-md active:translate-y-0 disabled:bg-gray-300 disabled:text-gray-500 disabled:cursor-not-allowed disabled:shadow-none"

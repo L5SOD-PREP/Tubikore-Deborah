@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import API from '../services/api';
 import { UserPlus, ArrowLeft, Eye, EyeOff } from 'lucide-react';
+import { validateRegister } from '../utils/validation';
 
 function Register() {
   const [form, setForm] = useState({
@@ -9,27 +10,25 @@ function Register() {
   });
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState('');
+  const [formErrors, setFormErrors] = useState({});
   const [success, setSuccess] = useState('');
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
   const handleChange = (e) => {
-    setForm({ ...form, [e.target.name]: e.target.value });
+    const { name, value } = e.target;
+    setForm(prev => ({ ...prev, [name]: value }));
+    if (formErrors[name]) setFormErrors(prev => { const u = { ...prev }; delete u[name]; return u; });
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
     setSuccess('');
+    setFormErrors({});
 
-    if (form.password !== form.confirmPassword) {
-      setError('Passwords do not match');
-      return;
-    }
-    if (form.password.length < 6) {
-      setError('Password must be at least 6 characters');
-      return;
-    }
+    const { valid, errors } = validateRegister(form);
+    if (!valid) { setFormErrors(errors); return; }
 
     setLoading(true);
     try {
@@ -73,15 +72,16 @@ function Register() {
         {error && <div className="p-3 rounded-lg mb-4 text-sm font-medium bg-gray-100 text-gray-800 border border-gray-300">{error}</div>}
         {success && <div className="p-3 rounded-lg mb-4 text-sm font-medium bg-gray-100 text-gray-800 border border-gray-300">{success}</div>}
 
-        <form onSubmit={handleSubmit} className="flex flex-col gap-4">
+        <form onSubmit={handleSubmit} className="flex flex-col gap-4" noValidate>
           <div className="flex flex-col gap-1.5">
             <label htmlFor="username" className="text-xs font-semibold text-gray-500 uppercase tracking-[0.3px]">Username</label>
             <input
               id="username" name="username" type="text"
               value={form.username} onChange={handleChange}
               placeholder="Choose a username" required autoFocus
-              className="w-full p-3.5 text-base border border-gray-300 rounded-md transition-colors focus:outline-none focus:border-black focus:shadow-[0_0_0_3px_rgba(0,0,0,0.08)] bg-white text-neutral-900 placeholder:text-gray-400"
+              className={`w-full p-3.5 text-base border rounded-md transition-colors focus:outline-none focus:border-black focus:shadow-[0_0_0_3px_rgba(0,0,0,0.08)] bg-white text-neutral-900 placeholder:text-gray-400 ${formErrors.username ? '!border-red-600 !shadow-[0_0_0_3px_rgba(211,47,47,0.08)]' : 'border-gray-300'}`}
             />
+            {formErrors.username && <span className="text-xs text-red-600 font-medium">{formErrors.username}</span>}
           </div>
 
           <div className="flex flex-col gap-1.5">
@@ -90,8 +90,9 @@ function Register() {
               id="email" name="email" type="email"
               value={form.email} onChange={handleChange}
               placeholder="your@email.com" required
-              className="w-full p-3.5 text-base border border-gray-300 rounded-md transition-colors focus:outline-none focus:border-black focus:shadow-[0_0_0_3px_rgba(0,0,0,0.08)] bg-white text-neutral-900 placeholder:text-gray-400"
+              className={`w-full p-3.5 text-base border rounded-md transition-colors focus:outline-none focus:border-black focus:shadow-[0_0_0_3px_rgba(0,0,0,0.08)] bg-white text-neutral-900 placeholder:text-gray-400 ${formErrors.email ? '!border-red-600 !shadow-[0_0_0_3px_rgba(211,47,47,0.08)]' : 'border-gray-300'}`}
             />
+            {formErrors.email && <span className="text-xs text-red-600 font-medium">{formErrors.email}</span>}
           </div>
 
           <div className="flex flex-col gap-1.5">
@@ -102,7 +103,7 @@ function Register() {
                 type={showPassword ? 'text' : 'password'}
                 value={form.password} onChange={handleChange}
                 placeholder="Min. 6 characters" required
-                className="w-full p-3.5 pr-11 text-base border border-gray-300 rounded-md transition-colors focus:outline-none focus:border-black focus:shadow-[0_0_0_3px_rgba(0,0,0,0.08)] bg-white text-neutral-900 placeholder:text-gray-400"
+                className={`w-full p-3.5 pr-11 text-base border rounded-md transition-colors focus:outline-none focus:border-black focus:shadow-[0_0_0_3px_rgba(0,0,0,0.08)] bg-white text-neutral-900 placeholder:text-gray-400 ${formErrors.password ? '!border-red-600 !shadow-[0_0_0_3px_rgba(211,47,47,0.08)]' : 'border-gray-300'}`}
               />
               <button
                 type="button"
@@ -113,6 +114,7 @@ function Register() {
                 {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
               </button>
             </div>
+            {formErrors.password && <span className="text-xs text-red-600 font-medium">{formErrors.password}</span>}
           </div>
 
           <div className="flex flex-col gap-1.5">
@@ -122,8 +124,9 @@ function Register() {
               type={showPassword ? 'text' : 'password'}
               value={form.confirmPassword} onChange={handleChange}
               placeholder="Repeat your password" required
-              className="w-full p-3.5 text-base border border-gray-300 rounded-md transition-colors focus:outline-none focus:border-black focus:shadow-[0_0_0_3px_rgba(0,0,0,0.08)] bg-white text-neutral-900 placeholder:text-gray-400"
+              className={`w-full p-3.5 text-base border rounded-md transition-colors focus:outline-none focus:border-black focus:shadow-[0_0_0_3px_rgba(0,0,0,0.08)] bg-white text-neutral-900 placeholder:text-gray-400 ${formErrors.confirmPassword ? '!border-red-600 !shadow-[0_0_0_3px_rgba(211,47,47,0.08)]' : 'border-gray-300'}`}
             />
+            {formErrors.confirmPassword && <span className="text-xs text-red-600 font-medium">{formErrors.confirmPassword}</span>}
           </div>
 
           <button type="submit" disabled={loading}

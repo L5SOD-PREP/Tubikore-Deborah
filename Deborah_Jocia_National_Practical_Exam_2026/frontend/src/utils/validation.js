@@ -144,3 +144,81 @@ export function validatePromotion(values) {
     errors
   };
 }
+
+/**
+ * Validate a Login form
+ * @param {Object} values - Form field values
+ * @returns {Object} { valid: boolean, errors: { fieldName: message } }
+ */
+export function validateLogin(values) {
+  const errors = {};
+
+  if (!values.username?.trim()) {
+    errors.username = 'Username is required';
+  }
+
+  if (!values.password?.trim()) {
+    errors.password = 'Password is required';
+  }
+
+  return {
+    valid: Object.keys(errors).length === 0,
+    errors
+  };
+}
+
+/**
+ * Validate a Registration form
+ * @param {Object} values - Form field values
+ * @returns {Object} { valid: boolean, errors: { fieldName: message } }
+ */
+export function validateRegister(values) {
+  const errors = {};
+
+  if (!values.username?.trim()) {
+    errors.username = 'Username is required';
+  } else if (values.username.length < 3) {
+    errors.username = 'Username must be at least 3 characters';
+  }
+
+  if (!values.email?.trim()) {
+    errors.email = 'Email is required';
+  } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(values.email)) {
+    errors.email = 'Please enter a valid email address';
+  }
+
+  if (!values.password?.trim()) {
+    errors.password = 'Password is required';
+  } else if (values.password.length < 6) {
+    errors.password = 'Password must be at least 6 characters';
+  }
+
+  if (!values.confirmPassword?.trim()) {
+    errors.confirmPassword = 'Please confirm your password';
+  } else if (values.password !== values.confirmPassword) {
+    errors.confirmPassword = 'Passwords do not match';
+  }
+
+  return {
+    valid: Object.keys(errors).length === 0,
+    errors
+  };
+}
+
+/**
+ * Validate Link Vehicle form
+ * @param {Object} values - Form field values
+ * @returns {Object} { valid: boolean, errors: { fieldName: message } }
+ */
+export function validateLinkVehicle(values) {
+  const errors = {};
+
+  if (!values.selectedPlate) {
+    errors.selectedPlate = 'Please select a vehicle';
+  }
+
+  return {
+    valid: Object.keys(errors).length === 0,
+    errors
+  };
+}

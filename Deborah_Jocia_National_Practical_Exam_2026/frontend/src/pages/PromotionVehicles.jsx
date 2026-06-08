@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import API from '../services/api';
 import { ArrowLeft, Car, Trash2 } from 'lucide-react';
+import { validateLinkVehicle } from '../utils/validation';
 
 function PromotionVehicles() {
   const { id } = useParams();
@@ -13,6 +14,7 @@ function PromotionVehicles() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [message, setMessage] = useState('');
+  const [formErrors, setFormErrors] = useState({});
 
   useEffect(() => {
     fetchData();
@@ -36,9 +38,11 @@ function PromotionVehicles() {
   };
 
   const handleLink = async () => {
-    if (!selectedPlate) return;
     setError('');
     setMessage('');
+    setFormErrors({});
+    const { valid, errors } = validateLinkVehicle({ selectedPlate });
+    if (!valid) { setFormErrors(errors); return; }
     try {
       await API.post(`/promotions/${id}/vehicles`, {
         Plate_Number: selectedPlate,
@@ -111,8 +115,8 @@ function PromotionVehicles() {
         <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-end">
           <div className="flex-1 w-full flex flex-col gap-1.5">
             <label className="text-xs font-semibold text-gray-500 uppercase tracking-[0.4px]">Select Vehicle</label>
-            <select value={selectedPlate} onChange={(e) => setSelectedPlate(e.target.value)}
-              className="w-full p-3 text-base border border-gray-300 rounded-md transition-colors focus:outline-none focus:border-black focus:shadow-[0_0_0_3px_rgba(0,0,0,0.08)] bg-white text-neutral-900 min-h-[44px] appearance-none">
+            <select value={selectedPlate} onChange={(e) => { setSelectedPlate(e.target.value); if (formErrors.selectedPlate) setFormErrors({}); }}
+              className={`w-full p-3 text-base border rounded-md transition-colors focus:outline-none focus:border-black focus:shadow-[0_0_0_3px_rgba(0,0,0,0.08)] bg-white text-neutral-900 min-h-[44px] appearance-none ${formErrors.selectedPlate ? '!border-red-600 !shadow-[0_0_0_3px_rgba(211,47,47,0.08)]' : 'border-gray-300'}`}>
               <option value="">-- Choose a vehicle --</option>
               {availableVehicles.map(v => (
                 <option key={v.Plate_Number} value={v.Plate_Number}>
@@ -126,9 +130,10 @@ function PromotionVehicles() {
             <input type="text" value={performance} onChange={(e) => setPerformance(e.target.value)}
               placeholder="e.g. Excellent, Good, Average"
               className="w-full p-3 text-base border border-gray-300 rounded-md transition-colors focus:outline-none focus:border-black focus:shadow-[0_0_0_3px_rgba(0,0,0,0.08)] bg-white text-neutral-900 placeholder:text-gray-400" />
+            {formErrors.selectedPlate && <span className="text-xs text-red-600 font-medium">{formErrors.selectedPlate}</span>}
           </div>
           <button className="inline-flex items-center justify-center gap-1.5 px-5 py-3 rounded-md text-sm font-medium cursor-pointer transition-all min-h-[44px] bg-black text-white hover:bg-gray-800 hover:-translate-y-0.5 hover:shadow-md active:translate-y-0 disabled:opacity-50 disabled:cursor-not-allowed"
-            onClick={handleLink} disabled={!selectedPlate}>
+            onClick={handleLink}>
             Link Vehicle
           </button>
         </div>
