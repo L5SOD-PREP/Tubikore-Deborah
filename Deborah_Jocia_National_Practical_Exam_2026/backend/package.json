@@ -1,0 +1,33 @@
+{
+  "name": "pms-backend",
+  "version": "1.0.0",
+  "description": "SwiftWheels Enterprises - Promotion and Marketing Subsystem API",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "nodemon server.js",
+    "backup": "node -e \"require('./config/db').getDatabase().then(d => { require('./config/backup').createBackup(d); process.exit(); })\"",
+    "test": "node test-api.js"
+  },
+  "keywords": ["pms", "swiftwheels", "promotion", "marketing"],
+  "author": "Deborah Jocia",
+  "license": "ISC",
+  "type": "commonjs",
+  "dependencies": {
+    "bcryptjs": "^3.0.3",
+    "cors": "^2.8.6",
+    "dotenv": "^17.4.2",
+    "express": "^5.2.1",
+    "express-rate-limit": "^8.5.2",
+    "express-session": "^1.19.0",
+    "express-validator": "^7.3.2",
+    "helmet": "^8.2.0",
+    "jsonwebtoken": "^9.0.3",
+    "morgan": "^1.11.0",
+    "sql.js": "^1.14.1",
+    "winston": "^3.19.0"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.14"
+  }
+}
