@@ -14,68 +14,64 @@ function Login({ onLogin }) {
     e.preventDefault();
     setError('');
     setLoading(true);
-
     try {
       const res = await API.post('/auth/login', { username, password });
-      // Store JWT token if provided
-      if (res.data.token) {
-        localStorage.setItem('pms_token', res.data.token);
-      }
+      if (res.data.token) localStorage.setItem('pms_token', res.data.token);
       onLogin(res.data.user, res.data.token);
       navigate('/');
     } catch (err) {
-      const msg = err.response?.data?.error || 'Login failed. Please try again.';
-      setError(msg);
-    } finally {
-      setLoading(false);
-    }
+      setError(err.response?.data?.error || 'Login failed. Please try again.');
+    } finally { setLoading(false); }
   };
 
   return (
-    <div className="login-page">
-      <div className="login-card">
-        <div className="login-header">
-          <div className="login-logo"><Zap size={36} /></div>
-          <h1>SwiftWheels PMS</h1>
-          <p>Promotion & Marketing Subsystem</p>
+    <div className="fixed inset-0 flex items-center justify-center bg-black overflow-hidden">
+      {/* Animated background — only on md+ */}
+      <div className="hidden md:block absolute top-[-50%] left-[-50%] w-[200%] h-[200%] pointer-events-none animate-[loginBgShift_20s_ease-in-out_infinite_alternate]"
+        style={{
+          background: 'radial-gradient(ellipse at 20% 50%, rgba(255,255,255,0.07) 0%, transparent 60%), radial-gradient(ellipse at 80% 30%, rgba(255,255,255,0.04) 0%, transparent 50%), radial-gradient(ellipse at 50% 80%, rgba(255,255,255,0.05) 0%, transparent 50%)'
+        }}
+      />
+      <div className="bg-white rounded-2xl w-full max-w-[400px] mx-4 p-8 md:p-10 shadow-[0_25px_80px_rgba(0,0,0,0.5)] relative">
+        <div className="text-center mb-7">
+          <div className="text-4xl mb-2.5"><Zap size={36} /></div>
+          <h1 className="text-xl font-bold text-black tracking-tight">SwiftWheels PMS</h1>
+          <p className="text-sm text-gray-500 mt-1">Promotion & Marketing Subsystem</p>
         </div>
 
-        {error && <div className="alert alert-error">{error}</div>}
+        {error && <div className="p-3 rounded-lg mb-4 text-sm font-medium bg-gray-100 text-gray-800 border border-gray-300">{error}</div>}
 
-        <form onSubmit={handleSubmit} className="login-form">
-          <div className="form-group">
-            <label htmlFor="username">Username</label>
+        <form onSubmit={handleSubmit} className="flex flex-col gap-4">
+          <div className="flex flex-col gap-1.5">
+            <label htmlFor="username" className="text-xs font-semibold text-gray-500 uppercase tracking-[0.3px]">Username</label>
             <input
-              id="username"
-              type="text"
-              value={username}
+              id="username" type="text" value={username}
               onChange={(e) => setUsername(e.target.value)}
-              placeholder="Enter your username"
-              required
-              autoFocus
+              placeholder="Enter your username" required autoFocus
+              className="w-full p-3.5 text-base border border-gray-300 rounded-md transition-colors focus:outline-none focus:border-black focus:shadow-[0_0_0_3px_rgba(0,0,0,0.08)] bg-white text-neutral-900 placeholder:text-gray-400"
             />
           </div>
-
-          <div className="form-group">
-            <label htmlFor="password">Password</label>
+          <div className="flex flex-col gap-1.5">
+            <label htmlFor="password" className="text-xs font-semibold text-gray-500 uppercase tracking-[0.3px]">Password</label>
             <input
-              id="password"
-              type="password"
-              value={password}
+              id="password" type="password" value={password}
               onChange={(e) => setPassword(e.target.value)}
-              placeholder="Enter your password"
-              required
+              placeholder="Enter your password" required
+              className="w-full p-3.5 text-base border border-gray-300 rounded-md transition-colors focus:outline-none focus:border-black focus:shadow-[0_0_0_3px_rgba(0,0,0,0.08)] bg-white text-neutral-900 placeholder:text-gray-400"
             />
           </div>
-
-          <button type="submit" className="btn btn-primary btn-full" disabled={loading}>
+          <button type="submit" disabled={loading}
+            className="w-full inline-flex items-center justify-center gap-1.5 px-5 py-3 rounded-md text-sm font-medium cursor-pointer transition-all min-h-[44px] bg-black text-white hover:bg-gray-800 hover:-translate-y-0.5 hover:shadow-md active:translate-y-0 disabled:bg-gray-300 disabled:text-gray-500 disabled:cursor-not-allowed disabled:shadow-none"
+          >
             {loading ? 'Authenticating...' : 'Sign In'}
           </button>
         </form>
 
-        <div className="login-footer">
-          <p>Default credentials: <strong>admin</strong> / <strong>Admin@123</strong></p>
-          <p className="env-note">(Configured via .env file)</p>
+        <div className="mt-6 text-center">
+          <p className="text-xs text-gray-400 bg-gray-50 p-2.5 rounded-lg leading-relaxed">
+            Default credentials: <strong className="text-gray-500">admin</strong> / <strong className="text-gray-500">Admin@123</strong>
+          </p>
+          <p className="text-[0.65rem] text-gray-400 mt-2">(Configured via .env file)</p>
         </div>
       </div>
     </div>
